@@ -6,16 +6,23 @@ pipeline {
             agent { label 'principal' }
             steps {
                 echo 'Me traigo el Codigo'
+                bat 'whoami'
+                bat 'hostname'
+                echo "${WORKSPACE}"
                 git branch: 'main', url: 'https://github.com/Eritolosa/helloworld.git'
                 bat 'dir'
-                echo "${WORKSPACE}"
                 stash name: 'source', includes: '**/*'
+                deleteDir()
             }
         }
         stage('Build') {
             agent { label 'principal' }
                 steps {
                     echo 'No compilamos nada'
+                    bat 'whoami'
+                    bat 'hostname'
+                    echo "${WORKSPACE}"
+                    deleteDir()
                 }
             }
         
@@ -25,30 +32,40 @@ pipeline {
                     agent { label 'linux1' }
                     steps {
                         echo 'Ejecutando pruebas unitarias'
+                        bat 'whoami'
+                        bat 'hostname'
+                        echo "${WORKSPACE}"
                         unstash 'source'
                         bat '''
-                        cd helloworld-master\\helloworld-master
+                        cd test\\unit
                         set PYTHONPATH=.
-                        pytest --junitxml=result-unit.xml test\\unit
+                        pytest --junitxml=result-unit.xml
                         '''
-                        stash name: 'unit-results', includes: 'helloworld-master/helloworld-master/result-unit.xml'
+                        stash name: 'unit-results', includes: 'test/unit/result-unit.xml'
+                        deleteDir()
                     }
                 }
                 stage('Rest') {
                     agent { label 'linux2' }
                     steps {
                         echo 'Ejecutando pruebas rest'
+                        bat 'whoami'
+                        bat 'hostname'
+                        echo "${WORKSPACE}"
                         unstash 'source'
                         bat '''
-                            cd helloworld-master\\helloworld-master
+                            cd test\\rest
                             set FLASK_APP=app.api:api_application
                             set FLASK_ENV=development
                             start /B flask run
-                            start /B java -jar C:\\Users\\tolos\\OneDrive\\Escritorio\\Devops\\REPOS\\helloworld-master\\helloworld-master\\test\\wiremock\\wiremock-standalone-3.13.0.jar --port 9090 --root-dir C:\\Users\\tolos\\OneDrive\\Escritorio\\Devops\\REPOS\\helloworld-master\\helloworld-master\\test\\wiremock
+                            cd ..\\wiremock
+                            start /B java -jar wiremock-standalone-3.13.0.jar --port 9090 --root-dir .
+                            cd ..\\rest
                             set PYTHONPATH=.
-                            pytest --junitxml=result-rest.xml test\\unit
-                        '''
-                        stash name: 'rest-results', includes: 'helloworld-master/helloworld-master/result-rest.xml'
+                            pytest --junitxml=result-rest.xml
+                            '''
+                        stash name: 'rest-results', includes: 'test/rest/result-rest.xml'
+                        deleteDir()
                     }
                 }
             }
@@ -57,9 +74,14 @@ pipeline {
         stage ('Results'){
             agent { label 'principal' }
             steps {
+                echo 'Recopilando resultados'
+                bat 'whoami'
+                bat 'hostname'
+                echo "${WORKSPACE}"
                 unstash 'unit-results'
                 unstash 'rest-results'
-                junit 'helloworld-master/helloworld-master/result-*.xml'
+                junit 'test/**/result-*.xml'
+                deleteDir()
             }
         }
 }
