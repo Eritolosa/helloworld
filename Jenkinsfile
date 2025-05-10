@@ -48,6 +48,7 @@ pipeline {
                 stage('Rest') {
                     agent { label 'linux2' }
                     steps {
+                        cathError(buildResult: "UNSTABLE", stageResult:"FAILURE")
                         echo 'Ejecutando pruebas rest'
                         bat 'whoami'
                         bat 'hostname'
