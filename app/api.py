@@ -1,5 +1,5 @@
 import http.client
-
+import math
 from flask import Flask
 
 from app import util
@@ -48,5 +48,15 @@ def divide(op_1, op_2):
         if num_2 == 0:
             return ("Cannot divide by zero", http.client.NOT_ACCEPTABLE, HEADERS)
         return ("{}".format(CALCULATOR.divide(num_1, num_2)), http.client.OK, HEADERS)
+    except TypeError as e:
+        return (str(e), http.client.BAD_REQUEST, HEADERS)
+
+@api_application.route("/calc/sqrt/<value>", methods=["GET"])
+def sqrt(value):
+    try:
+        num = util.convert_to_number(value)
+        if num < 0:
+            return ("Cannot take square root of negative number", http.client.NOT_ACCEPTABLE, HEADERS)
+        return ("{}".format(math.sqrt(num)), http.client.OK, HEADERS)
     except TypeError as e:
         return (str(e), http.client.BAD_REQUEST, HEADERS)
