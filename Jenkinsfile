@@ -54,13 +54,18 @@ pipeline {
                         echo "${WORKSPACE}"
                         unstash 'source'
                         bat '''
-                            cd ..
-                            cd ..
+                            cd test\\rest
+                            cd ..\\..
                             set FLASK_APP=app.api:api_application
                             set FLASK_ENV=development
                             start /B flask run
                             cd ..test\\wiremock
-                            start /B java -jar wiremock-standalone-3.13.0.jar --port 9090 --root-dir .
+                            IF EXIST wiremock-standalone-3.13.0.jar (
+                                start /B java -jar wiremock-standalone-3.13.0.jar --port 9090 --root-dir .
+                            ) ELSE (
+                                echo "ERROR: WireMock JAR no encontrado"
+                                exit /b 1
+                            )
                             cd ..\\rest
                             set PYTHONPATH=..\\..
                             pytest --junitxml=result-rest.xml
