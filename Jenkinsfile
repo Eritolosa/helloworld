@@ -54,22 +54,15 @@ pipeline {
                         echo "${WORKSPACE}"
                         unstash 'source'
                         bat '''
-                            cd test\\rest
-                            cd ..\\..
+                            cd C:\\Users\\tolos\\OneDrive\\Escritorio\\Devops\\REPOS\\helloworld-master
                             set FLASK_APP=app.api:api_application
                             set FLASK_ENV=development
                             start /B flask run
-                            cd ..test\\wiremock
-                            IF EXIST wiremock-standalone-3.13.0.jar (
-                                start /B java -jar wiremock-standalone-3.13.0.jar --port 9090 --root-dir .
-                            ) ELSE (
-                                echo "ERROR: WireMock JAR no encontrado"
-                                exit /b 1
-                            )
-                            cd ..\\rest
+                            start /B java -jar C:\\Users\\tolos\\OneDrive\\Escritorio\\Devops\\REPOS\\helloworld-master\\test\\wiremock\\wiremock-standalone-3.13.0.jar --port 9090 --root-dir .
+                            cd test\\rest
                             set PYTHONPATH=..\\..
                             pytest --junitxml=result-rest.xml
-                            '''
+                        '''
                         stash name: 'rest-results', includes: 'test/rest/result-rest.xml'
                         deleteDir()
                     }
