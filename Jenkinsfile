@@ -38,7 +38,7 @@ pipeline {
                         unstash 'source'
                         bat '''
                         cd test\\unit
-                        set PYTHONPATH..\\..
+                        set PYTHONPATH=..\\..
                         pytest --junitxml=result-unit.xml
                         '''
                         stash name: 'unit-results', includes: 'test/unit/result-unit.xml'
@@ -61,7 +61,7 @@ pipeline {
                             cd ..\\wiremock
                             start /B java -jar wiremock-standalone-3.13.0.jar --port 9090 --root-dir .
                             cd ..\\rest
-                            set PYTHONPATH=.
+                            set PYTHONPATH=..\\..
                             pytest --junitxml=result-rest.xml
                             '''
                         stash name: 'rest-results', includes: 'test/rest/result-rest.xml'
