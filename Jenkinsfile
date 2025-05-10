@@ -54,7 +54,7 @@ pipeline {
                         echo "${WORKSPACE}"
                         unstash 'source'
                         bat '''
-                            cd ../..
+                            cd test\\rest
                             set FLASK_APP=app.api:api_application
                             set FLASK_ENV=development
                             start /B flask run
@@ -82,6 +82,11 @@ pipeline {
                 unstash 'rest-results'
                 junit 'test/**/result-*.xml'
                 deleteDir()
+            }
+            post {
+                always {
+                    echo 'Stage Results ejecutado incluso si hay fallos anteriores'
+                }
             }
         }
 }
