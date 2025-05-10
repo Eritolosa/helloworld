@@ -48,7 +48,7 @@ pipeline {
                 stage('Rest') {
                     agent { label 'linux2' }
                     steps {
-                        cathError(buildResult: "UNSTABLE", stageResult:"FAILURE")
+                        catchError(buildResult: "UNSTABLE", stageResult: "FAILURE") {
                         echo 'Ejecutando pruebas rest'
                         bat 'whoami'
                         bat 'hostname'
@@ -67,6 +67,7 @@ pipeline {
                         bat 'copy C:\\Users\\tolos\\OneDrive\\Escritorio\\Devops\\REPOS\\helloworld-master\\test\\rest\\result-rest.xml test\\rest\\result-rest.xml'
                         stash name: 'rest-results', includes: 'test/rest/result-rest.xml'
                         deleteDir()
+                    }
                     }
                 }
             }
