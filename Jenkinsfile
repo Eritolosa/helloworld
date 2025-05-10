@@ -37,8 +37,8 @@ pipeline {
                         echo "${WORKSPACE}"
                         unstash 'source'
                         bat '''
-                        cd test\unit
-                        set PYTHONPATH..\..
+                        cd test\\unit
+                        set PYTHONPATH..\\..
                         pytest --junitxml=result-unit.xml
                         '''
                         stash name: 'unit-results', includes: 'test/unit/result-unit.xml'
