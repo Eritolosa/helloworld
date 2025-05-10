@@ -58,7 +58,7 @@ pipeline {
                             set FLASK_APP=app.api:api_application
                             set FLASK_ENV=development
                             start /B flask run
-                            start /B java -jar C:\\Users\\tolos\\OneDrive\\Escritorio\\Devops\\REPOS\\helloworld-master\\test\\wiremock\\wiremock-standalone-3.13.0.jar --port 9090 --root-dir .
+                            start /B java -jar C:\\Users\\tolos\\OneDrive\\Escritorio\\Devops\\REPOS\\helloworld-master\\test\\wiremock\\wiremock-standalone-3.13.0.jar --port 9090 --root-dir C:\\Users\\tolos\\OneDrive\\Escritorio\\Devops\\REPOS\\helloworld-master\\test\\wiremock
                             cd test\\rest
                             set PYTHONPATH=..\\..
                             pytest --junitxml=result-rest.xml
