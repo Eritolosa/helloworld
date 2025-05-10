@@ -54,11 +54,12 @@ pipeline {
                         echo "${WORKSPACE}"
                         unstash 'source'
                         bat '''
-                            cd test\\rest
+                            cd ..
+                            cd ..
                             set FLASK_APP=app.api:api_application
                             set FLASK_ENV=development
                             start /B flask run
-                            cd ..\\wiremock
+                            cd ..test\\wiremock
                             start /B java -jar wiremock-standalone-3.13.0.jar --port 9090 --root-dir .
                             cd ..\\rest
                             set PYTHONPATH=..\\..
