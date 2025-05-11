@@ -38,7 +38,7 @@ pipeline {
                         unstash 'source'
                         bat '''
                         cd test\\unit
-                        set PYTHONPATH=.
+                        set PYTHONPATH=..\\..
                         pytest --junitxml=result-unit.xml
                         '''
                         stash name: 'unit-results', includes: 'test/unit/result-unit.xml'
