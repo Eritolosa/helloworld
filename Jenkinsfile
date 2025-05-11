@@ -48,7 +48,6 @@ pipeline {
                 stage('Rest') {
                     agent { label 'linux2' }
                     steps {
-                        catchError(buildResult: "UNSTABLE", stageResult: "FAILURE") {
                         echo 'Ejecutando pruebas rest'
                         bat 'whoami'
                         bat 'hostname'
@@ -60,15 +59,12 @@ pipeline {
                             set FLASK_ENV=development
                             start /B flask run
                             start /B java -jar C:\\Users\\tolos\\OneDrive\\Escritorio\\Devops\\REPOS\\helloworld-master\\test\\wiremock\\wiremock-standalone-3.13.0.jar --port 9090 --root-dir C:\\Users\\tolos\\OneDrive\\Escritorio\\Devops\\REPOS\\helloworld-master\\test\\wiremock
-                            powershell -Command "Start-Sleep -Seconds 5"
                             cd test\\rest
                             set PYTHONPATH=..\\..
                             pytest --junitxml=test/rest/result-rest.xml
                         '''
-                        bat 'copy C:\\Users\\tolos\\OneDrive\\Escritorio\\Devops\\REPOS\\helloworld-master\\test\\rest\\result-rest.xml test\\rest\\result-rest.xml'
                         stash name: 'rest-results', includes: 'test/rest/result-rest.xml'
                         deleteDir()
-                    }
                     }
                 }
             }
