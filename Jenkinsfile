@@ -9,7 +9,7 @@ pipeline {
                 bat 'whoami'
                 bat 'hostname'
                 echo "${WORKSPACE}"
-                git branch: 'main', url: 'https://github.com/Eritolosa/helloworld.git'
+                git branch: 'master', url: 'https://github.com/Eritolosa/helloworld.git'
                 bat 'dir'
                 stash name: 'source', includes: '**/*'
                 deleteDir()
