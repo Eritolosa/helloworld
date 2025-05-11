@@ -62,7 +62,7 @@ pipeline {
                             start /B java -jar wiremock-standalone-3.13.0.jar --port 9090 --root-dir .
                             cd ..\\rest
                             set PYTHONPATH=.
-                            pytest --junitxml=result-rest.xml
+                            pytest --junitxml=test/rest/result-rest.xml
                             '''
                         stash name: 'rest-results', includes: 'test/rest/result-rest.xml'
                         deleteDir()
