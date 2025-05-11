@@ -63,6 +63,7 @@ pipeline {
                             set PYTHONPATH=..\\..
                             pytest --junitxml=result-rest.xml
                         '''
+                        bat 'copy C:\\Users\\tolos\\OneDrive\\Escritorio\\Devops\\REPOS\\helloworld-master\\test\\rest\\result-rest.xml test\\rest\\result-rest.xml'
                         stash name: 'rest-results', includes: 'test/rest/result-rest.xml'
                         deleteDir()
                     }
