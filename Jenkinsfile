@@ -61,7 +61,7 @@ pipeline {
                             start /B java -jar C:\\Users\\tolos\\OneDrive\\Escritorio\\Devops\\REPOS\\helloworld-master\\test\\wiremock\\wiremock-standalone-3.13.0.jar --port 9090 --root-dir C:\\Users\\tolos\\OneDrive\\Escritorio\\Devops\\REPOS\\helloworld-master\\test\\wiremock
                             cd test\\rest
                             set PYTHONPATH=..\\..
-                            pytest --junitxml=result-rest.xml
+                            pytest --junitxml=test/rest/result-rest.xml
                         '''
                         bat 'copy C:\\Users\\tolos\\OneDrive\\Escritorio\\Devops\\REPOS\\helloworld-master\\test\\rest\\result-rest.xml test\\rest\\result-rest.xml'
                         stash name: 'rest-results', includes: 'test/rest/result-rest.xml'
