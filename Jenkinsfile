@@ -54,17 +54,17 @@ pipeline {
                         echo "${WORKSPACE}"
                         unstash 'source'
                         bat '''
-                            cd test\\rest
+                            cd C:\\Users\\tolos\\OneDrive\\Escritorio\\Devops\\REPOS\\helloworld-master
                             set FLASK_APP=app.api:api_application
                             set FLASK_ENV=development
                             start /B flask run
                             cd ..\\wiremock
-                            start /B java -jar ..\\wiremock\\wiremock-standalone-3.13.0.jar --port 9090 --root-dir ..\\wiremock
-                            timeout /t 5 > nul
-                            cd ..\\rest
-                            set PYTHONPATH=.
+                            start /B java -jar C:\\Users\\tolos\\OneDrive\\Escritorio\\Devops\\REPOS\\helloworld-master\\test\\wiremock\\wiremock-standalone-3.13.0.jar --port 9090 --root-dir C:\\Users\\tolos\\OneDrive\\Escritorio\\Devops\\REPOS\\helloworld-master\\test\\wiremock
+                            cd test\\rest
+                            set PYTHONPATH=..\\..
                             pytest --junitxml=result-rest.xml
-                            '''
+                        '''
+                        bat 'copy C:\\Users\\tolos\\OneDrive\\Escritorio\\Devops\\REPOS\\helloworld-master\\test\\rest\\result-rest.xml test\\rest\\result-rest.xml'
                         stash name: 'rest-results', includes: 'test/rest/result-rest.xml'
                         deleteDir()
                     }
