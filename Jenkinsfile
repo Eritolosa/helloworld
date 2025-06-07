@@ -67,7 +67,7 @@ pipeline {
             }
         }
 
-        stage('Results') {
+        /* stage('Results') {
             agent { label 'principal' }
             steps {
                 echo 'Recopilando resultados'
@@ -76,9 +76,9 @@ pipeline {
                 echo "${WORKSPACE}"
                 unstash 'unit-results'
                 unstash 'rest-results'
-                junit '**/result-*.xml'
+                junit '* * /result-*.xml'
                 deleteDir()
             }
-        }
+        }*/
     }
 }
