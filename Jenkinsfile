@@ -34,12 +34,14 @@ pipeline {
                 steps {
                 echo 'Ejecutando pruebas unitarias'
                 unstash 'source'
+                dir("${WORKSPACE}") {
                 bat '''
                     set PYTHONPATH=.
                     pytest --junitxml=result-unit.xml test\\unit
                 '''
                 bat 'dir /s result-unit.xml'
                 stash name: 'unit-results', includes: '**/result-unit.xml'
+                }
                 // deleteDir()
             }
         }
