@@ -30,21 +30,19 @@ pipeline {
         stage('Test') {
             parallel {
                 stage('Unit') {
-                    agent { label 'linux1' }
-                    steps {
-                        echo 'Ejecutando pruebas unitarias'
-                        bat 'whoami'
-                        bat 'hostname'
-                        echo "${WORKSPACE}"
-                        unstash 'source'
-                        bat '''
-                            set PYTHONPATH=.
-                            pytest --junitxml=result-unit.xml test\\unit
-                        '''
-                        stash name: 'unit-results', includes: 'test/unit/result-unit.xml'
-                        deleteDir()
-                    }
-                }
+                agent { label 'linux1' }
+                steps {
+                echo 'Ejecutando pruebas unitarias'
+                unstash 'source'
+                bat '''
+                    set PYTHONPATH=.
+                    pytest --junitxml=result-unit.xml test\\unit
+                '''
+                bat 'dir'
+                stash name: 'unit-results', includes: 'result-unit.xml'
+                deleteDir()
+            }
+        }
 
                 stage('Rest') {
                     agent { label 'linux2' }
