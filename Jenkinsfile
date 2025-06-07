@@ -32,29 +32,17 @@ pipeline {
                 stage('Unit') {
                 agent { label 'linux1' }
                 steps {
-                echo 'Ejecutando pruebas unitarias'
-                unstash 'source'
-                dir("${WORKSPACE}") {
-                bat '''
-                    set PYTHONPATH=.
-                    pytest --junitxml=result-unit.xml test\\unit
-                '''
-                bat 'echo --- STAGING --- && dir /s /b'
-                bat 'echo --- LOOKING FOR result-unit.xml --- && dir /s /b result-unit.xml'
-
-                script {
-                    def exists = bat(script: 'if exist result-unit.xml (exit 0) else (exit 1)', returnStatus: true)
-                    if (exists == 0) {
-                        echo '✅ result-unit.xml encontrado, stasheando...'
+                    echo 'Ejecutando pruebas unitarias'
+                    unstash 'source'
+                    dir("${WORKSPACE}") {
+                        bat '''
+                            set PYTHONPATH=.
+                            pytest --junitxml=result-unit.xml test\\unit
+                        '''
                         stash name: 'unit-results', includes: 'result-unit.xml'
-                    } else {
-                        error '❌ result-unit.xml no se encontró. No se puede hacer stash.'
                     }
                 }
                 }
-                // deleteDir()
-            }
-        }
 
                 stage('Rest') {
                     agent { label 'linux2' }
