@@ -15,19 +15,20 @@ pipeline {
                 deleteDir()
             }
         }
+
         stage('Build') {
             agent { label 'principal' }
-                steps {
-                    echo 'No compilamos nada'
-                    bat 'whoami'
-                    bat 'hostname'
-                    echo "${WORKSPACE}"
-                    deleteDir()
-                }
+            steps {
+                echo 'No compilamos nada'
+                bat 'whoami'
+                bat 'hostname'
+                echo "${WORKSPACE}"
+                deleteDir()
             }
-        
-        stage('Test'){
-            parallel{
+        }
+
+        stage('Test') {
+            parallel {
                 stage('Unit') {
                     agent { label 'linux1' }
                     steps {
@@ -37,13 +38,14 @@ pipeline {
                         echo "${WORKSPACE}"
                         unstash 'source'
                         bat '''
-                        set PYTHONPATH=.
-                        pytest --junitxml=result-unit.xml test\\unit
+                            set PYTHONPATH=.
+                            pytest --junitxml=result-unit.xml test\\unit
                         '''
                         stash name: 'unit-results', includes: 'result-unit.xml'
                         deleteDir()
                     }
                 }
+
                 stage('Rest') {
                     agent { label 'linux2' }
                     steps {
@@ -59,15 +61,15 @@ pipeline {
                             start /B java -jar test\\wiremock\\wiremock-standalone-3.13.0.jar --port 9090 --root-dir test\\wiremock
                             set PYTHONPATH=.
                             pytest --junitxml=result-rest.xml test\\rest
-                            '''
-                            stash name: 'rest-results', includes: 'result-rest.xml'
+                        '''
+                        stash name: 'rest-results', includes: 'result-rest.xml'
                         deleteDir()
                     }
                 }
             }
         }
-        
-        stage ('Results'){
+
+        stage('Results') {
             agent { label 'principal' }
             steps {
                 echo 'Recopilando resultados'
