@@ -38,8 +38,8 @@ pipeline {
                     set PYTHONPATH=.
                     pytest --junitxml=result-unit.xml test\\unit
                 '''
-                bat 'dir'
-                stash name: 'unit-results', includes: 'result-unit.xml'
+                bat 'dir /s result-unit.xml'
+                stash name: 'unit-results', includes: '**/result-unit.xml'
                 deleteDir()
             }
         }
@@ -76,7 +76,7 @@ pipeline {
                 echo "${WORKSPACE}"
                 unstash 'unit-results'
                 unstash 'rest-results'
-                junit 'test/unit/result-*.xml'
+                junit '**/result-*.xml'
                 deleteDir()
             }
         }
