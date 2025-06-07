@@ -39,9 +39,9 @@ pipeline {
                         bat '''
                         cd test\\unit
                         set PYTHONPATH=.
-                        pytest --junitxml=result-unit.xml
-                        '''
-                        stash name: 'unit-results', includes: 'test/unit/result-unit.xml'
+                        pytest --junitxml=result-unit.xml test\\unit
+                        ''
+                        stash name: 'unit-results', includes: 'result-unit.xml'
                         deleteDir()
                     }
                 }
@@ -62,9 +62,9 @@ pipeline {
                             start /B java -jar test\\wiremock\\wiremock-standalone-3.13.0.jar --port 9090 --root-dir test\\wiremock
                             cd ..\\rest
                             set PYTHONPATH=.
-                            pytest --junitxml=test/rest/result-rest.xml
+                            pytest --junitxml=result-rest.xml test\\rest
                             '''
-                        stash name: 'rest-results', includes: 'test/rest/result-rest.xml'
+                            stash name: 'rest-results', includes: 'result-rest.xml'
                         deleteDir()
                     }
                 }
