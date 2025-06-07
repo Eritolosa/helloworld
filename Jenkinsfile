@@ -39,9 +39,18 @@ pipeline {
                     set PYTHONPATH=.
                     pytest --junitxml=result-unit.xml test\\unit
                 '''
-                bat 'dir /s result-unit.xml'
-                bat 'copy result-unit.xml tmp-unit.xml'
-                stash name: 'unit-results', includes: 'tmp-unit.xml'
+                bat 'echo --- STAGING --- && dir /s /b'
+                bat 'echo --- LOOKING FOR result-unit.xml --- && dir /s /b result-unit.xml'
+
+                script {
+                    def exists = bat(script: 'if exist result-unit.xml (exit 0) else (exit 1)', returnStatus: true)
+                    if (exists == 0) {
+                        echo '✅ result-unit.xml encontrado, stasheando...'
+                        stash name: 'unit-results', includes: 'result-unit.xml'
+                    } else {
+                        error '❌ result-unit.xml no se encontró. No se puede hacer stash.'
+                    }
+                }
                 }
                 // deleteDir()
             }
