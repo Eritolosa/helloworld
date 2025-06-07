@@ -41,7 +41,7 @@ pipeline {
                         set PYTHONPATH=.
                         pytest --junitxml=result-unit.xml test\\unit
                         ''
-                        stash name: 'unit-results', includes: 'test/unit/result-unit.xml'
+                        stash name: 'unit-results', includes: 'result-unit.xml'
                         deleteDir()
                     }
                 }
@@ -58,13 +58,11 @@ pipeline {
                             set FLASK_APP=app.api:api_application
                             set FLASK_ENV=development
                             start /B flask run
-                            cd ..\\wiremock
                             start /B java -jar test\\wiremock\\wiremock-standalone-3.13.0.jar --port 9090 --root-dir test\\wiremock
-                            cd ..\\rest
                             set PYTHONPATH=.
                             pytest --junitxml=result-rest.xml test\\rest
                             '''
-                            rest-results', includes: 'test/rest/result-rest.xml'
+                            stash name: 'rest-results', includes: 'result-rest.xml'
                         deleteDir()
                     }
                 }
@@ -80,7 +78,7 @@ pipeline {
                 echo "${WORKSPACE}"
                 unstash 'unit-results'
                 unstash 'rest-results'
-                junit 'test/**/result-*.xml'
+                junit 'result-*.xml'
                 deleteDir()
             }
         }
