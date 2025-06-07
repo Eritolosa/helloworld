@@ -38,9 +38,8 @@ pipeline {
                     set PYTHONPATH=.
                     pytest --junitxml=result-unit.xml test\\unit
                 '''
-                bat 'dir'
-                bat 'type result-unit.xml'
-                stash name: 'unit-results', includes: 'result-unit.xml'
+                bat 'dir /s result-unit.xml'
+                stash name: 'unit-results', includes: '**/result-unit.xml'
                 // deleteDir()
             }
         }
