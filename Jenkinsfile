@@ -37,10 +37,9 @@ pipeline {
                         echo "${WORKSPACE}"
                         unstash 'source'
                         bat '''
-                        cd test\\unit
                         set PYTHONPATH=.
                         pytest --junitxml=result-unit.xml test\\unit
-                        ''
+                        '''
                         stash name: 'unit-results', includes: 'result-unit.xml'
                         deleteDir()
                     }
@@ -54,7 +53,6 @@ pipeline {
                         echo "${WORKSPACE}"
                         unstash 'source'
                         bat '''
-                            cd test\\rest
                             set FLASK_APP=app.api:api_application
                             set FLASK_ENV=development
                             start /B flask run
@@ -82,5 +80,5 @@ pipeline {
                 deleteDir()
             }
         }
-}
+    }
 }
