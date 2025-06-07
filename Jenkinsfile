@@ -40,7 +40,8 @@ pipeline {
                     pytest --junitxml=result-unit.xml test\\unit
                 '''
                 bat 'dir /s result-unit.xml'
-                stash name: 'unit-results', includes: '**/result-unit.xml'
+                bat 'copy result-unit.xml tmp-unit.xml'
+                stash name: 'unit-results', includes: 'tmp-unit.xml'
                 }
                 // deleteDir()
             }
