@@ -59,7 +59,7 @@ pipeline {
                             set FLASK_ENV=development
                             start /B flask run
                             cd ..\\wiremock
-                            start /B java -jar wiremock-standalone-3.13.0.jar --port 9090 --root-dir .
+                            start /B java -jar test\\wiremock\\wiremock-standalone-3.13.0.jar --port 9090 --root-dir test\\wiremock
                             cd ..\\rest
                             set PYTHONPATH=.
                             pytest --junitxml=test/rest/result-rest.xml
