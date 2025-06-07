@@ -64,7 +64,7 @@ pipeline {
                             set PYTHONPATH=.
                             pytest --junitxml=result-rest.xml test\\rest
                             '''
-                            stash name: 'rest-results', includes: 'result-rest.xml'
+                            rest-results', includes: 'test/rest/result-rest.xml'
                         deleteDir()
                     }
                 }
