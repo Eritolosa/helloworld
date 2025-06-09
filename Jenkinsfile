@@ -9,7 +9,7 @@ pipeline {
                 bat 'whoami'
                 bat 'hostname'
                 echo "${WORKSPACE}"
-                git branch: 'main', url: 'https://github.com/Eritolosa/helloworld.git'
+                git branch: 'master', url: 'https://github.com/Eritolosa/helloworld.git'
                 bat 'dir'
                 stash name: 'source', includes: '**/*'
                 deleteDir()
@@ -27,23 +27,25 @@ pipeline {
             }
         }
 
-        stage('Test') {
-            parallel {
+        stage('Test'){
+            parallel{
                 stage('Unit') {
-                agent { label 'linux1' }
-                steps {
-                    echo 'Ejecutando pruebas unitarias'
-                    unstash 'source'
-                    dir("${WORKSPACE}") {
+                    agent { label 'linux1' }
+                    steps {
+                        echo 'Ejecutando pruebas unitarias'
+                        bat 'whoami'
+                        bat 'hostname'
+                        echo "${WORKSPACE}"
+                        unstash 'source'
                         bat '''
-                            set PYTHONPATH=.
-                            pytest --junitxml=result-unit.xml test\\unit
+                        cd test\\unit
+                        set PYTHONPATH=..\\..
+                        pytest --junitxml=result-unit.xml
                         '''
-                        stash name: 'unit-results', includes: 'result-unit.xml'
+                        stash name: 'unit-results', includes: 'test/unit/result-unit.xml'
+                        deleteDir()
                     }
                 }
-                }
-
                 stage('Rest') {
                     agent { label 'linux2' }
                     steps {
@@ -53,21 +55,25 @@ pipeline {
                         echo "${WORKSPACE}"
                         unstash 'source'
                         bat '''
+                            cd C:\\Users\\tolos\\OneDrive\\Escritorio\\Devops\\REPOS\\helloworld-master
                             set FLASK_APP=app.api:api_application
                             set FLASK_ENV=development
                             start /B flask run
-                            start /B java -jar test\\wiremock\\wiremock-standalone-3.13.0.jar --port 9090 --root-dir test\\wiremock
-                            set PYTHONPATH=.
-                            pytest --junitxml=result-rest.xml test\\rest
+                            cd ..\\wiremock
+                            start /B java -jar C:\\Users\\tolos\\OneDrive\\Escritorio\\Devops\\REPOS\\helloworld-master\\test\\wiremock\\wiremock-standalone-3.13.0.jar --port 9090 --root-dir C:\\Users\\tolos\\OneDrive\\Escritorio\\Devops\\REPOS\\helloworld-master\\test\\wiremock
+                            cd test\\rest
+                            set PYTHONPATH=..\\..
+                            pytest --junitxml=result-rest.xml
                         '''
-                        stash name: 'rest-results', includes: 'result-rest.xml'
+                        bat 'copy C:\\Users\\tolos\\OneDrive\\Escritorio\\Devops\\REPOS\\helloworld-master\\test\\rest\\result-rest.xml test\\rest\\result-rest.xml'
+                        stash name: 'rest-results', includes: 'test/rest/result-rest.xml'
                         deleteDir()
                     }
                 }
             }
         }
-
-        /* stage('Results') {
+        
+        stage ('Results'){
             agent { label 'principal' }
             steps {
                 echo 'Recopilando resultados'
@@ -76,9 +82,9 @@ pipeline {
                 echo "${WORKSPACE}"
                 unstash 'unit-results'
                 unstash 'rest-results'
-                junit '* * /result-*.xml'
+                junit 'test/**/result-*.xml'
                 deleteDir()
             }
-        }*/
-    }
+        }
+}
 }
