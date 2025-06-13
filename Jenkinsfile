@@ -15,8 +15,8 @@ pipeline {
                 deleteDir()
             }
         }
-        stage('Test'){
-            parallel{
+        stage('Test') {
+            parallel {
                 stage('Unit') {
                     agent { label 'linux1' }
                     steps {
@@ -26,14 +26,15 @@ pipeline {
                         echo "${WORKSPACE}"
                         unstash 'source'
                         bat '''
-                        cd test\\unit
-                        set PYTHONPATH=..\\..
-                        pytest --junitxml=result-unit.xml
+                            cd test\\unit
+                            set PYTHONPATH=..\\..
+                            pytest --junitxml=result-unit.xml
                         '''
                         stash name: 'unit-results', includes: 'test/unit/result-unit.xml'
                         deleteDir()
                     }
                 }
+
                 stage('Rest') {
                     agent { label 'linux2' }
                     steps {
@@ -58,6 +59,19 @@ pipeline {
                         deleteDir()
                     }
                 }
+            }
+        }
+        stage('Results') {
+            agent { label 'principal' }
+            steps {
+                echo 'Recopilando resultados'
+                bat 'whoami'
+                bat 'hostname'
+                echo "${WORKSPACE}"
+                unstash 'unit-results'
+                unstash 'rest-results'
+                junit 'test/**/result-*.xml'
+                deleteDir()
             }
         }
 }
