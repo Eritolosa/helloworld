@@ -16,17 +16,6 @@ pipeline {
             }
         }
 
-        stage('Build') {
-            agent { label 'principal' }
-            steps {
-                echo 'No compilamos nada'
-                bat 'whoami'
-                bat 'hostname'
-                echo "${WORKSPACE}"
-                deleteDir()
-            }
-        }
-
         stage('Test'){
             parallel{
                 stage('Unit') {
