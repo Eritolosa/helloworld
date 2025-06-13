@@ -15,7 +15,6 @@ pipeline {
                 deleteDir()
             }
         }
-
         stage('Test'){
             parallel{
                 stage('Unit') {
@@ -59,20 +58,6 @@ pipeline {
                         deleteDir()
                     }
                 }
-            }
-        }
-        
-        stage ('Results'){
-            agent { label 'principal' }
-            steps {
-                echo 'Recopilando resultados'
-                bat 'whoami'
-                bat 'hostname'
-                echo "${WORKSPACE}"
-                unstash 'unit-results'
-                unstash 'rest-results'
-                junit 'test/**/result-*.xml'
-                deleteDir()
             }
         }
 }
