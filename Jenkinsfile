@@ -91,9 +91,9 @@ pipeline {
                         tools:[[parser:'COBERTURA', pattern: 'test/unit/coverage.xml']],
                         qualityGates: [
                             [threshold: 85.0, metric: 'LINE', baseline: 'PROJECT', criticality: 'UNSTABLE'],
-                            [threshold: 95.0, metric: 'LINE', baseline: 'PROJECT', criticality: 'SUCCESS'],
+                            [threshold: 95.0, metric: 'LINE', baseline: 'PROJECT', criticality: 'FAILURE'],
                             [threshold: 80.0, metric: 'BRANCH', baseline: 'PROJECT', criticality: 'UNSTABLE'],
-                            [threshold: 90.0, metric: 'BRANCH', baseline: 'PROJECT', criticality: 'SUCCESS']
+                            [threshold: 90.0, metric: 'BRANCH', baseline: 'PROJECT', criticality: 'FAILURE']
                         ]
                     )
                     archiveArtifacts artifacts: 'htmlcov/**/*.*', fingerprint: true
