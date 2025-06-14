@@ -44,17 +44,15 @@ pipeline {
                         echo "${WORKSPACE}"
                         unstash 'source'
                         bat '''
-                            cd C:\\Users\\tolos\\OneDrive\\Escritorio\\Devops\\REPOS\\helloworld-master
                             set FLASK_APP=app.api:api_application
                             set FLASK_ENV=development
                             start /B flask run
-                            cd ..\\wiremock
-                            start /B java -jar C:\\Users\\tolos\\OneDrive\\Escritorio\\Devops\\REPOS\\helloworld-master\\test\\wiremock\\wiremock-standalone-3.13.0.jar --port 9090 --root-dir C:\\Users\\tolos\\OneDrive\\Escritorio\\Devops\\REPOS\\helloworld-master\\test\\wiremock
-                            cd test\\rest
+                            cd test\\wiremock
+                            start /B java -jar wiremock-standalone-3.13.0.jar --port 9090 --root-dir .
+                            cd ..\\rest
                             set PYTHONPATH=..\\..
                             pytest --junitxml=result-rest.xml
                         '''
-                        bat 'copy C:\\Users\\tolos\\OneDrive\\Escritorio\\Devops\\REPOS\\helloworld-master\\test\\rest\\result-rest.xml test\\rest\\result-rest.xml'
                         stash name: 'rest-results', includes: 'test/rest/result-rest.xml'
                         deleteDir()
                     }
@@ -72,6 +70,25 @@ pipeline {
                 unstash 'rest-results'
                 junit 'test/**/result-*.xml'
                 deleteDir()
+            }
+        }
+        stage('Coverage') {
+            steps {
+                catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+                    bat '''
+                        set PYTHONPATH=.
+                        coverage run --branch --source=app --omit=app\\__init__.py,app\\api.py -m pytest test\\unit
+                        coverage xml
+                    '''
+                    recordCoverage(tools:[[parser:'COBERTURA', pattern: 'coverage.xml']],
+                                    qualityGates: [
+                                        [threshold: 85.0, metric: 'LINE', baseline: 'PROJECT', criticality: 'UNSTABLE'],
+                                        [threshold: 95.0, metric: 'LINE', baseline: 'PROJECT', criticality: 'SUCCESS'],
+                                        [threshold: 80.0, metric: 'BRANCH', baseline: 'PROJECT', criticality: 'UNSTABLE'],
+                                        [threshold: 90.0, metric: 'BRANCH', baseline: 'PROJECT', criticality: 'SUCCESS']
+                                    ]
+                                    )
+                }
             }
         }
 }
