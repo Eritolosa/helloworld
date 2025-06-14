@@ -29,7 +29,9 @@ pipeline {
                     coverage run --branch --source=app --omit=app\\__init__.py,app\\api.py -m pytest
                     coverage xml
                     coverage html -d ..\\..\\htmlcov
+                    pytest --junitxml=standardResults.xml
                 '''
+                junit 'test/unit/standardResults.xml'
                 stash name: 'unit-results', includes: 'test/unit/coverage.xml'
                 stash name: 'coverage-report', includes: 'htmlcov/**/*'
                 stash includes: 'app/**', name: 'source-code'
