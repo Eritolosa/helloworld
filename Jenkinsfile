@@ -47,7 +47,7 @@ pipeline {
                 deleteDir()
             }
         }
-        stage('Staticas') {
+        stage('Static') {
             steps {
                 bat '''
                     flake8 --exit-zero --format=pylint app >flake8.out
@@ -81,8 +81,16 @@ pipeline {
 
         stage('Performance') {
             steps {
-                bat '"C:\\Users\\tolos\\OneDrive\\Escritorio\\Devops\\apache-jmeter-5.6.3\\bin\\jmeter.bat" -n -t test\\jmeter\\flask.jmx -f -l flask.jtl'
+                catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+                bat '''
+                set FLASK_APP=app.api:api_application
+                set FLASK_ENV=development
+                start /MIN flask run
+                timeout /t 5 >nul
+                C:\\Users\\tolos\\OneDrive\\Escritorio\\Devops\\apache-jmeter-5.6.3\\bin\\jmeter.bat -n -t test\\jmeter\\flask.jmx -f -l flask.jtl
+                '''
                 perfReport sourceDataFiles: 'flask.jtl'
+                }
             }
         }
         /*stage('Coverage') {
