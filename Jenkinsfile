@@ -70,6 +70,7 @@ pipeline {
         stage('Performance') {
             steps {
                 catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+                unstash 'source'
                 bat '''
                 set FLASK_APP=app.api:api_application
                 set FLASK_ENV=development
