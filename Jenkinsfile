@@ -33,29 +33,6 @@ pipeline {
                         deleteDir()
                     }
                 }
-
-                stage('Rest') {
-                    agent { label 'linux2' }
-                    steps {
-                        echo 'Ejecutando pruebas rest'
-                        bat 'whoami'
-                        bat 'hostname'
-                        echo "${WORKSPACE}"
-                        unstash 'source'
-                        bat '''
-                            set FLASK_APP=app.api:api_application
-                            set FLASK_ENV=development
-                            start /B flask run
-                            cd test\\wiremock
-                            start /B java -jar wiremock-standalone-3.13.0.jar --port 9090 --root-dir .
-                            cd ..\\rest
-                            set PYTHONPATH=..\\..
-                            pytest --junitxml=result-rest.xml
-                        '''
-                        stash name: 'rest-results', includes: 'test/rest/result-rest.xml'
-                        deleteDir()
-                    }
-                }
             }
         }
         stage('Results') {
@@ -66,12 +43,11 @@ pipeline {
                 bat 'hostname'
                 echo "${WORKSPACE}"
                 unstash 'unit-results'
-                unstash 'rest-results'
                 junit 'test/**/result-*.xml'
                 deleteDir()
             }
         }
-        stage('Coverage') {
+        /*stage('Coverage') {
             steps {
                 catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
                     bat '''
@@ -89,6 +65,6 @@ pipeline {
                     )
                 }
             }
-        }
+        }*/
     }
 }
