@@ -32,7 +32,7 @@ pipeline {
                 '''
                 stash name: 'unit-results', includes: 'test/unit/coverage.xml'
                 stash name: 'coverage-report', includes: 'htmlcov/**/*'
-                deleteDir(
+                deleteDir()
                 }
             }
         stage('Results') {
