@@ -26,9 +26,8 @@ pipeline {
                         echo "${WORKSPACE}"
                         unstash 'source'
                         bat '''
-                            cd test\\unit
-                            set PYTHONPATH=..\\..
-                            pytest --junitxml=result-unit.xml
+                            set PYTHONPATH=.
+                            pytest --junitxml=test\\unit\\result-unit.xml test\\unit
                         '''
                         stash name: 'unit-results', includes: 'test/unit/result-unit.xml'
                         deleteDir()
@@ -81,15 +80,15 @@ pipeline {
                         coverage xml
                     '''
                     recordCoverage(tools:[[parser:'COBERTURA', pattern: 'coverage.xml']],
-                                    qualityGates: [
-                                        [threshold: 85.0, metric: 'LINE', baseline: 'PROJECT', criticality: 'UNSTABLE'],
-                                        [threshold: 95.0, metric: 'LINE', baseline: 'PROJECT', criticality: 'SUCCESS'],
-                                        [threshold: 80.0, metric: 'BRANCH', baseline: 'PROJECT', criticality: 'UNSTABLE'],
-                                        [threshold: 90.0, metric: 'BRANCH', baseline: 'PROJECT', criticality: 'SUCCESS']
-                                    ]
-                                    )
+                        qualityGates: [
+                            [threshold: 85.0, metric: 'LINE', baseline: 'PROJECT', criticality: 'UNSTABLE'],
+                            [threshold: 95.0, metric: 'LINE', baseline: 'PROJECT', criticality: 'SUCCESS'],
+                            [threshold: 80.0, metric: 'BRANCH', baseline: 'PROJECT', criticality: 'UNSTABLE'],
+                            [threshold: 90.0, metric: 'BRANCH', baseline: 'PROJECT', criticality: 'SUCCESS']
+                        ]
+                    )
                 }
             }
         }
-}
+    }
 }
