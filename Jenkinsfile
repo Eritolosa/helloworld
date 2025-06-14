@@ -103,5 +103,19 @@ pipeline {
                 }
             }
         }
+        stage('Rest') {
+            steps {
+                catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
+                unstash 'source'
+                bat '''
+                    set FLASK_APP=app.api:api_application
+                    set FLASK_ENV=development
+                    start /MIN flask run
+                    timeout /t 5 >nul
+                    pytest test\\rest --maxfail=1 --disable-warnings
+                '''
+                }
+            }
+        }
     }
 }
