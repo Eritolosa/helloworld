@@ -15,26 +15,26 @@ pipeline {
                 deleteDir()
             }
         }
-        stage('Test') {
-            parallel {
-                stage('Unit') {
-                    agent { label 'linux1' }
-                    steps {
-                        echo 'Ejecutando pruebas unitarias'
-                        bat 'whoami'
-                        bat 'hostname'
-                        echo "${WORKSPACE}"
-                        unstash 'source'
-                        bat '''
-                            set PYTHONPATH=.
-                            pytest --junitxml=test\\unit\\result-unit.xml test\\unit
-                        '''
-                        stash name: 'unit-results', includes: 'test/unit/result-unit.xml'
-                        deleteDir()
-                    }
+        stage('Unit') {
+            agent { label 'linux1' }
+            steps {
+                echo 'Ejecutando pruebas unitarias con cobertura'
+                bat 'whoami'
+                bat 'hostname'
+                echo "${WORKSPACE}"
+                unstash 'source'
+                bat '''
+                    cd test\\unit
+                    set PYTHONPATH=..\\..
+                    coverage run --branch --source=app --omit=app\\__init__.py,app\\api.py -m pytest
+                    coverage xml
+                    coverage html
+                '''
+                stash name: 'unit-results', includes: 'test/unit/coverage.xml'
+                stash name: 'coverage-report', includes: 'htmlcov/**/*'
+                deleteDir(
                 }
             }
-        }
         stage('Results') {
             agent { label 'principal' }
             steps {
@@ -93,15 +93,13 @@ pipeline {
                 }
             }
         }
-        /*stage('Coverage') {
+        stage('Coverage') {
             steps {
+                unstash 'coverage-report'
+                unstash 'unit-results'
                 catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
-                    bat '''
-                        set PYTHONPATH=.
-                        coverage run --branch --source=app --omit=app\\__init__.py,app\\api.py -m pytest test\\unit
-                        coverage xml
-                    '''
-                    recordCoverage(tools:[[parser:'COBERTURA', pattern: 'coverage.xml']],
+                    recordCoverage(
+                        tools:[[parser:'COBERTURA', pattern: 'test/unit/coverage.xml']],
                         qualityGates: [
                             [threshold: 85.0, metric: 'LINE', baseline: 'PROJECT', criticality: 'UNSTABLE'],
                             [threshold: 95.0, metric: 'LINE', baseline: 'PROJECT', criticality: 'SUCCESS'],
@@ -109,8 +107,9 @@ pipeline {
                             [threshold: 90.0, metric: 'BRANCH', baseline: 'PROJECT', criticality: 'SUCCESS']
                         ]
                     )
+                    archiveArtifacts artifacts: 'htmlcov/**/*.*', fingerprint: true
                 }
             }
-        }*/
+        }
     }
 }
