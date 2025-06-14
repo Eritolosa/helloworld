@@ -84,6 +84,7 @@ pipeline {
             }
         }
         stage('Coverage') {
+            agent { label 'linux1' } 
             steps {
                 unstash 'coverage-report'
                 unstash 'unit-results'
