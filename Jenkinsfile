@@ -32,6 +32,7 @@ pipeline {
                 '''
                 stash name: 'unit-results', includes: 'test/unit/coverage.xml'
                 stash name: 'coverage-report', includes: 'htmlcov/**/*'
+                stash includes: 'app/**', name: 'source-code'
                 deleteDir()
                 }
             }
@@ -86,6 +87,7 @@ pipeline {
             steps {
                 unstash 'coverage-report'
                 unstash 'unit-results'
+                unstash 'source-code'
                 catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
                     recordCoverage(
                         tools:[[parser:'COBERTURA', pattern: 'test/unit/coverage.xml']],
