@@ -28,7 +28,7 @@ pipeline {
                     set PYTHONPATH=..\\..
                     coverage run --branch --source=app --omit=app\\__init__.py,app\\api.py -m pytest
                     coverage xml
-                    coverage html
+                    coverage html -d ..\\..\\htmlcov
                 '''
                 stash name: 'unit-results', includes: 'test/unit/coverage.xml'
                 stash name: 'coverage-report', includes: 'htmlcov/**/*'
