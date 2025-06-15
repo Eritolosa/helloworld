@@ -26,12 +26,11 @@ pipeline {
                     echo "${WORKSPACE}"
                     unstash 'source'
                     bat '''
-                        cd test\\unit
                         set PYTHONPATH=..\\..
                         coverage run --branch --source=app --omit=app/__init__.py,app/api.py -m pytest test/unit
                         coverage xml -o coverage.xml
                         coverage html -d ..\\..\\htmlcov
-                        pytest --junitxml=standardResults.xml
+                        pytest test/unit --junitxml=test/unit/standardResults.xml
                     '''
                     junit 'test/unit/standardResults.xml'
                     stash name: 'unit-results', includes: 'coverage.xml'
