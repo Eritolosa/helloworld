@@ -106,7 +106,7 @@ pipeline {
                     }
                 }
             }
-
+        }
         stage('Coverage') {
             agent { label 'linux1' } 
             steps {
