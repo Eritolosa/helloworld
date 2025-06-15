@@ -15,76 +15,98 @@ pipeline {
                 deleteDir()
             }
         }
-        stage('Unit') {
-            agent { label 'linux1' }
-            steps {
-                echo 'Ejecutando pruebas unitarias con cobertura'
-                bat 'whoami'
-                bat 'hostname'
-                echo "${WORKSPACE}"
-                unstash 'source'
-                bat '''
-                    cd test\\unit
-                    set PYTHONPATH=..\\..
-                    coverage run --branch --source=app --omit=app\\__init__.py,app\\api.py -m pytest
-                    coverage xml
-                    coverage html -d ..\\..\\htmlcov
-                    pytest --junitxml=standardResults.xml
-                '''
-                junit 'test/unit/standardResults.xml'
-                stash name: 'unit-results', includes: 'test/unit/coverage.xml'
-                stash name: 'coverage-report', includes: 'htmlcov/**/*'
-                stash includes: 'app/**', name: 'source-code'
-                deleteDir()
+        stage('Paralelo') {
+            parallel {
+                stage('Unit') {
+                agent { label 'linux1' }
+                steps {
+                    echo 'Ejecutando pruebas unitarias con cobertura'
+                    bat 'whoami'
+                    bat 'hostname'
+                    echo "${WORKSPACE}"
+                    unstash 'source'
+                    bat '''
+                        cd test\\unit
+                        set PYTHONPATH=..\\..
+                        coverage run --branch --source=app --omit=app\\__init__.py,app\\api.py -m pytest
+                        coverage xml
+                        coverage html -d ..\\..\\htmlcov
+                        pytest --junitxml=standardResults.xml
+                    '''
+                    junit 'test/unit/standardResults.xml'
+                    stash name: 'unit-results', includes: 'test/unit/coverage.xml'
+                    stash name: 'coverage-report', includes: 'htmlcov/**/*'
+                    stash includes: 'app/**', name: 'source-code'
+                    deleteDir()
                 }
             }
-        stage('Static') {
-            steps {
-                bat '''
-                    flake8 --exit-zero --format=pylint app >flake8.out
-                '''
-                recordIssues (
-                    tools: [flake8(name:'flake8', pattern: 'flake8.out')], 
-                    qualityGates: [
-                        [threshold: 10, type: 'TOTAL', unstable: false],
-                        [threshold: 8, type: 'TOTAL', unstable: true]
-                    ]
-                )
-            }
-        }
 
-        stage('Security') {
-            steps {
-                catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
-                bat '''
-                    bandit --exit-zero -r . -f custom -o bandit.out --msg-template "{abspath}:{line}:[{test_id}] {msg}"
-                '''
-                recordIssues (
-                    tools: [pyLint(name:'Bandit', pattern: 'bandit.out')], 
-                    qualityGates: [
-                    [threshold: 2, type: 'TOTAL', unstable: true],
-                    [threshold: 4, type: 'TOTAL', unstable: false]
-                ]
-                )
+                stage('Static') {
+                    agent { label 'linux2' }
+                    steps {
+                        echo 'Flake8'
+                        bat 'whoami'
+                        bat 'hostname'
+                        echo "${WORKSPACE}"
+                        unstash 'source'
+                        bat '''
+                            flake8 --exit-zero --format=pylint app >flake8.out
+                        '''
+                        recordIssues (
+                            tools: [flake8(name:'flake8', pattern: 'flake8.out')], 
+                            qualityGates: [
+                                [threshold: 10, type: 'TOTAL', unstable: false],
+                                [threshold: 8, type: 'TOTAL', unstable: true]
+                            ]
+                        )
+                    }
                 }
-            }
-        }
 
-        stage('Performance') {
-            steps {
-                catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
-                unstash 'source'
-                bat '''
-                set FLASK_APP=app.api:api_application
-                set FLASK_ENV=development
-                start /MIN flask run
-                timeout /t 5 >nul
-                C:\\Users\\tolos\\OneDrive\\Escritorio\\Devops\\apache-jmeter-5.6.3\\bin\\jmeter.bat -n -t test\\jmeter\\flask.jmx -f -l flask.jtl
-                '''
-                perfReport sourceDataFiles: 'flask.jtl'
+                stage('Security') {
+                    agent { label 'linux2' }
+                    steps {
+                        echo 'Bandit...'
+                        bat 'whoami'
+                        bat 'hostname'
+                        echo "${WORKSPACE}"
+                        unstash 'source'
+                        catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+                        bat '''
+                            bandit --exit-zero -r . -f custom -o bandit.out --msg-template "{abspath}:{line}:[{test_id}] {msg}"
+                        '''
+                        recordIssues (
+                            tools: [pyLint(name:'Bandit', pattern: 'bandit.out')], 
+                            qualityGates: [
+                            [threshold: 2, type: 'TOTAL', unstable: true],
+                            [threshold: 4, type: 'TOTAL', unstable: false]
+                        ]
+                        )
+                        }
+                    }
+                }
+
+                stage('Performance') {
+                    agent { label 'linux1' }
+                    steps {
+                        echo 'JMeter...'
+                        bat 'whoami'
+                        bat 'hostname'
+                        echo "${WORKSPACE}"
+                        catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+                        unstash 'source'
+                        bat '''
+                            set FLASK_APP=app.api:api_application
+                            set FLASK_ENV=development
+                            start /MIN flask run
+                            timeout /t 5 >nul
+                            C:\\Users\\tolos\\OneDrive\\Escritorio\\Devops\\apache-jmeter-5.6.3\\bin\\jmeter.bat -n -t test\\jmeter\\flask.jmx -f -l flask.jtl
+                        '''
+                        perfReport sourceDataFiles: 'flask.jtl'
+                        }
+                    }
                 }
             }
-        }
+            
         stage('Coverage') {
             agent { label 'linux1' } 
             steps {
