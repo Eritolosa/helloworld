@@ -54,8 +54,12 @@ class TestCalculate(unittest.TestCase):
             self.calc.divide("2", "2")
     
     def test_divide_method_fails_with_zero(self):
-        with self.assertRaises(TypeError):
+        try:
             self.calc.divide(10, 0)
+        except TypeError as e:
+            self.assertEqual(str(e), "Division by zero is not possible")
+        else:
+            self.fail("TypeError not raised")
 
     def test_multiply_method_returns_correct_result(self):
         self.assertEqual(4, self.calc.multiply(2, 2))
