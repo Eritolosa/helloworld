@@ -106,7 +106,7 @@ pipeline {
                     }
                 }
             }
-            
+
         stage('Coverage') {
             agent { label 'linux1' } 
             steps {
@@ -128,8 +128,12 @@ pipeline {
             }
         }
         stage('Rest') {
+            agent { label 'linux2' }
             steps {
                 catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
+                bat 'whoami'
+                bat 'hostname'
+                echo "${WORKSPACE}"
                 unstash 'source'
                 bat '''
                     set FLASK_APP=app.api:api_application
