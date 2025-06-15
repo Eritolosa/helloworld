@@ -115,7 +115,7 @@ pipeline {
                 unstash 'source-code'
                 catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
                     recordCoverage(
-                        tools:[[parser:'COBERTURA', pattern: 'coverage.xml']],
+                        tools: [cobertura(pattern: 'coverage.xml')],
                         qualityGates: [
                             [threshold: 85.0, metric: 'LINE', baseline: 'PROJECT', criticality: 'UNSTABLE'],
                             [threshold: 95.0, metric: 'LINE', baseline: 'PROJECT', criticality: 'FAILURE'],
