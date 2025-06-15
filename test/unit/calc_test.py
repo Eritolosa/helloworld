@@ -66,6 +66,10 @@ class TestCalculate(unittest.TestCase):
         self.assertEqual(0, self.calc.substract(0, 0))
         self.assertEqual(0, self.calc.substract(0, 0))
         self.assertRaises(TypeError, self.calc.substract, "0", 0)
+
+    def test_divide_method_handles_zero_and_valid(self):
+        self.assertRaises(TypeError, self.calc.divide, 1, 0)
+        self.assertEqual(self.calc.divide(8, 4), 2)
         
         
 if __name__ == "__main__":  # pragma: no cover
