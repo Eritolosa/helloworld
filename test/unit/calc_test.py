@@ -86,6 +86,9 @@ class TestCalculate(unittest.TestCase):
         with self.assertRaises(TypeError):
             self.calc.divide(1, 0)
         self.assertEqual(self.calc.divide(8, 4), 2)
+
+    def test_divide_method_zero_numerator(self):
+        self.assertEqual(self.calc.divide(0, 1), 0)
         
         
 if __name__ == "__main__":  # pragma: no cover
